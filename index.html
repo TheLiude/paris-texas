@@ -1,0 +1,284 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>巴黎德州 荒漠開場</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Oswald:wght@500&family=Noto+Sans+TC:wght@400&display=swap">
+<style>
+/* 版面概念：一個固定在畫面上的「鏡頭」，頁面捲動只負責推進時間。
+   所有動畫皆為 CSS Scroll-Driven Animations（animation-timeline: scroll(root)），沒有 JavaScript。
+   單一深色觀感：電影院般的黑底，畫面本身就是沙漠照片。 */
+:root {
+  --ink: #0d0b09;
+  --paper: #f3ece0;
+  --reel: #c8231d;
+  --veil: rgb(13 11 9 / .62);
+  --display: "Oswald", "Arial Narrow", "Helvetica Neue", sans-serif;
+  --body: "Noto Sans TC", "PingFang TC", "Microsoft JhengHei", sans-serif;
+  color-scheme: dark;
+}
+html { background: var(--ink); }
+body {
+  background: var(--ink);
+  color: var(--paper);
+  font-family: var(--body);
+  height: 1200vh;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+}
+.scene { position: fixed; inset: 0; overflow: hidden; container-type: size; background: var(--ink); }
+/* 手機：網址列伸縮時不要讓畫面跟著跳動，固定用最大可視高度 */
+@supports (height: 100lvh) { .scene { bottom: auto; height: 100lvh; } }
+html, body { overscroll-behavior-y: none; }
+body { -webkit-tap-highlight-color: transparent; }
+/* 舞台＝沙漠照片的範圍，以 cover 方式填滿鏡頭；所有物件都用舞台的百分比定位 */
+.stage {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: max(100cqw, 149.81cqh);
+  height: max(100cqh, 66.75cqw);
+  translate: -50% -50%;
+}
+.frames, .walker { position: absolute; inset: 0; pointer-events: none; }
+.stage img { position: absolute; max-width: none; display: block; }
+.stage img.bg { inset: 0; width: 100%; height: 100%; }
+.final, .f, .w { opacity: 0; }
+/* 人物：每一格是依攝影機透視算好的去背影格；色調調得接近褪色底片 */
+.w { filter: sepia(.18) saturate(.82) contrast(.96) brightness(1.04); }
+.sign {
+  left: 34.239%;
+  top: 43.863%;
+  width: 22.089%;
+  height: 30.192%;
+  transform-origin: 64.148% 77.071%;   /* 以立牌底部為基準移動與縮放 */
+  opacity: 0;
+}
+.sign-link {
+  position: absolute;
+  left: calc(34.239% + 22.089% * .3);
+  top: calc(43.863% + 30.192% * .02);
+  width: calc(22.089% * .66);
+  height: calc(30.192% * .76);
+  border-radius: 4px;
+  cursor: pointer;
+  visibility: hidden;                 /* 只有捲到最後一格時才能點 */
+  z-index: 5;
+}
+.sign-link:hover { box-shadow: 0 0 0 3px rgb(243 236 224 / .55); }
+.sign-link:focus-visible { outline: 3px solid var(--paper); outline-offset: 4px; }
+.reel { position: fixed; left: 0; right: 0; top: 0; height: 3px; background: var(--reel); transform-origin: 0 50%; transform: scaleX(0); }
+@property --pct { syntax: "<integer>"; inherits: false; initial-value: 0; }
+.counter {
+  position: fixed;
+  right: max(16px, env(safe-area-inset-right, 0px));
+  bottom: calc(16px + env(safe-area-inset-bottom, 0px));
+  font-family: var(--display);
+  font-weight: 500;
+  font-size: .8rem;
+  letter-spacing: .14em;
+  font-variant-numeric: tabular-nums;
+  color: var(--paper);
+  background: var(--veil);
+  padding: .3em .7em;
+  border-radius: 4px;
+  counter-reset: pct var(--pct);
+}
+.counter::after { content: counter(pct) "%"; }
+.fallback { display: none; }
+
+/* =========================================================
+   Scroll-Driven Animations：全部掛在 scroll(root)，keyframe 百分比 = 捲動進度
+   ========================================================= */
+@supports (animation-timeline: scroll()) {
+  .f, .w { animation: show linear none; animation-timeline: scroll(root); }
+  .f.last { animation-fill-mode: forwards; }
+  .w.first { animation-fill-mode: backwards; }
+  @keyframes show { from, to { opacity: 1; } }
+
+  .walker, .frames, .sign, .final, .reel, .counter {
+    animation-timing-function: linear;
+    animation-fill-mode: both;
+    animation-duration: auto;
+    animation-timeline: scroll(root);
+  }
+  /* 人物景深：開場失焦，0–45% 漸漸對上焦 */
+  .walker { animation-name: man-focus; }
+  @keyframes man-focus { 0% { filter: blur(0.4cqh); } 45%, 100% { filter: blur(0); } }
+  /* 焦點拉到人物時背景微微失焦，人物走出後回到清楚 */
+  .frames { animation-name: bg-focus; }
+  @keyframes bg-focus { 0%, 20% { filter: blur(0); } 45%, 58% { filter: blur(.3cqh); } 63%, 100% { filter: blur(0); } }
+  /* 立牌：61% 在遠處出現，每 3% 跟著背景前進一格，99% 停在圖五的位置 */
+  .sign { animation-name: sign-walk, sign-focus; }
+  @keyframes sign-walk {
+  0% { transform: translate(6.989%, -158.493%) scale(0.03); opacity: 0; animation-timing-function: step-end; }
+  61% { transform: translate(6.989%, -158.493%) scale(0.03); opacity: 1; animation-timing-function: step-end; }
+  63% { transform: translate(6.923%, -156.975%) scale(0.039); opacity: 1; animation-timing-function: step-end; }
+  66% { transform: translate(6.835%, -154.987%) scale(0.051); opacity: 1; animation-timing-function: step-end; }
+  69% { transform: translate(6.72%, -152.384%) scale(0.067); opacity: 1; animation-timing-function: step-end; }
+  72% { transform: translate(6.57%, -148.976%) scale(0.088); opacity: 1; animation-timing-function: step-end; }
+  75% { transform: translate(6.373%, -144.511%) scale(0.116); opacity: 1; animation-timing-function: step-end; }
+  78% { transform: translate(6.115%, -138.664%) scale(0.151); opacity: 1; animation-timing-function: step-end; }
+  81% { transform: translate(5.777%, -131.008%) scale(0.198); opacity: 1; animation-timing-function: step-end; }
+  84% { transform: translate(5.335%, -120.98%) scale(0.26); opacity: 1; animation-timing-function: step-end; }
+  87% { transform: translate(4.756%, -107.848%) scale(0.34); opacity: 1; animation-timing-function: step-end; }
+  90% { transform: translate(3.998%, -90.649%) scale(0.445); opacity: 1; animation-timing-function: step-end; }
+  93% { transform: translate(3.004%, -68.126%) scale(0.583); opacity: 1; animation-timing-function: step-end; }
+  96% { transform: translate(1.704%, -38.629%) scale(0.764); opacity: 1; animation-timing-function: step-end; }
+  99% { transform: translate(0%, 0%) scale(1); opacity: 1; animation-timing-function: step-end; }
+  100% { transform: none; opacity: 1; }
+  }
+  @keyframes sign-focus {
+  0% { filter: blur(0); }
+  61% { filter: blur(2.858cqh); animation-timing-function: step-end; }
+  63% { filter: blur(2.497cqh); animation-timing-function: step-end; }
+  66% { filter: blur(2.182cqh); animation-timing-function: step-end; }
+  69% { filter: blur(1.907cqh); animation-timing-function: step-end; }
+  72% { filter: blur(1.666cqh); animation-timing-function: step-end; }
+  75% { filter: blur(1.456cqh); animation-timing-function: step-end; }
+  78% { filter: blur(1.272cqh); animation-timing-function: step-end; }
+  81% { filter: blur(1.112cqh); animation-timing-function: step-end; }
+  84% { filter: blur(0.972cqh); animation-timing-function: step-end; }
+  87% { filter: blur(0.849cqh); animation-timing-function: step-end; }
+  88% { filter: blur(0.849cqh); }
+  88.5% { filter: blur(0.844cqh); }
+  89% { filter: blur(0.829cqh); }
+  89.5% { filter: blur(0.806cqh); }
+  90% { filter: blur(0.592cqh); }
+  90.5% { filter: blur(0.563cqh); }
+  91% { filter: blur(0.53cqh); }
+  91.5% { filter: blur(0.493cqh); }
+  92% { filter: blur(0.453cqh); }
+  92.5% { filter: blur(0.412cqh); }
+  93% { filter: blur(0.281cqh); }
+  93.5% { filter: blur(0.248cqh); }
+  94% { filter: blur(0.214cqh); }
+  94.5% { filter: blur(0.181cqh); }
+  95% { filter: blur(0.149cqh); }
+  95.5% { filter: blur(0.118cqh); }
+  96% { filter: blur(0.069cqh); }
+  96.5% { filter: blur(0.05cqh); }
+  97% { filter: blur(0.033cqh); }
+  97.5% { filter: blur(0.019cqh); }
+  98% { filter: blur(0.009cqh); }
+  98.5% { filter: blur(0.002cqh); }
+  99% { filter: blur(0cqh); }
+  100% { filter: blur(0); }
+  }
+  .final { animation-name: final-frame; }
+  /* 告示牌停在圖五的位置後（98% 起）才變成可點的連結 */
+  .sign-link { animation: sign-link linear both; animation-timeline: scroll(root); }
+  @keyframes sign-link { 0%, 97.9% { visibility: hidden; } 98%, 100% { visibility: visible; } }
+  @keyframes final-frame { 0%, 98.8% { opacity: 0; } 100% { opacity: 1; } }
+  .reel { animation-name: reel; }
+  @keyframes reel { to { transform: scaleX(1); } }
+  .counter { animation-name: pct; }
+  @keyframes pct { from { --pct: 0; } to { --pct: 100; } }
+}
+
+/* 不支援或使用者要求減少動態：直接給最後一格 */
+@supports not (animation-timeline: scroll()) {
+  body { height: 100%; }
+  .walker, .sign, .reel, .counter { display: none; }
+  .final, .f.last { opacity: 1; }
+  .sign-link { visibility: visible; }
+  .fallback { display: block; }
+}
+@media (prefers-reduced-motion: reduce) {
+  body { height: 100%; }
+  .walker, .sign, .reel, .counter { display: none; }
+  .final, .f.last { opacity: 1; animation: none !important; }
+  .sign-link { visibility: visible; animation: none !important; }
+  .fallback { display: block; }
+}
+.fallback {
+  position: fixed;
+  top: calc(16px + env(safe-area-inset-top, 0px));
+  left: max(16px, env(safe-area-inset-left, 0px));
+  right: max(16px, env(safe-area-inset-right, 0px));
+  max-width: 34rem;
+  background: var(--veil);
+  padding: .9rem 1.1rem;
+  border-radius: 6px;
+  line-height: 1.6;
+  font-size: .95rem;
+}
+</style>
+</head>
+<body>
+
+<div class="scene" aria-label="巴黎德州開場：沙漠中走來的人">
+  <div class="stage">
+    <div class="frames">
+      <img class="bg" src="frames/f00.jpg" alt="褪色照片中的沙漠與遠方地平線，攝影機正緩緩後退">
+      <img class="bg f" src="frames/f01.jpg" alt="" style="animation-range: 3% 6%">
+      <img class="bg f" src="frames/f02.jpg" alt="" style="animation-range: 6% 9%">
+      <img class="bg f" src="frames/f03.jpg" alt="" style="animation-range: 9% 12%">
+      <img class="bg f" src="frames/f04.jpg" alt="" style="animation-range: 12% 15%">
+      <img class="bg f" src="frames/f05.jpg" alt="" style="animation-range: 15% 18%">
+      <img class="bg f" src="frames/f06.jpg" alt="" style="animation-range: 18% 21%">
+      <img class="bg f" src="frames/f07.jpg" alt="" style="animation-range: 21% 24%">
+      <img class="bg f" src="frames/f08.jpg" alt="" style="animation-range: 24% 27%">
+      <img class="bg f" src="frames/f09.jpg" alt="" style="animation-range: 27% 30%">
+      <img class="bg f" src="frames/f10.jpg" alt="" style="animation-range: 30% 33%">
+      <img class="bg f" src="frames/f11.jpg" alt="" style="animation-range: 33% 36%">
+      <img class="bg f" src="frames/f12.jpg" alt="" style="animation-range: 36% 39%">
+      <img class="bg f" src="frames/f13.jpg" alt="" style="animation-range: 39% 42%">
+      <img class="bg f" src="frames/f14.jpg" alt="" style="animation-range: 42% 45%">
+      <img class="bg f" src="frames/f15.jpg" alt="" style="animation-range: 45% 48%">
+      <img class="bg f" src="frames/f16.jpg" alt="" style="animation-range: 48% 51%">
+      <img class="bg f" src="frames/f17.jpg" alt="" style="animation-range: 51% 54%">
+      <img class="bg f" src="frames/f18.jpg" alt="" style="animation-range: 54% 57%">
+      <img class="bg f" src="frames/f19.jpg" alt="" style="animation-range: 57% 60%">
+      <img class="bg f" src="frames/f20.jpg" alt="" style="animation-range: 60% 63%">
+      <img class="bg f" src="frames/f21.jpg" alt="" style="animation-range: 63% 66%">
+      <img class="bg f" src="frames/f22.jpg" alt="" style="animation-range: 66% 69%">
+      <img class="bg f" src="frames/f23.jpg" alt="" style="animation-range: 69% 72%">
+      <img class="bg f" src="frames/f24.jpg" alt="" style="animation-range: 72% 75%">
+      <img class="bg f" src="frames/f25.jpg" alt="" style="animation-range: 75% 78%">
+      <img class="bg f" src="frames/f26.jpg" alt="" style="animation-range: 78% 81%">
+      <img class="bg f" src="frames/f27.jpg" alt="" style="animation-range: 81% 84%">
+      <img class="bg f" src="frames/f28.jpg" alt="" style="animation-range: 84% 87%">
+      <img class="bg f" src="frames/f29.jpg" alt="" style="animation-range: 87% 90%">
+      <img class="bg f" src="frames/f30.jpg" alt="" style="animation-range: 90% 93%">
+      <img class="bg f" src="frames/f31.jpg" alt="" style="animation-range: 93% 96%">
+      <img class="bg f" src="frames/f32.jpg" alt="" style="animation-range: 96% 99%">
+      <img class="bg f last" src="frames/f33.jpg" alt="" style="animation-range: 99% 100%">
+    </div>
+    <img class="bg final" src="frames/f33-sign.jpg" alt="沙漠中立著寫有 Paris, Texas 的房地產立牌">
+    <img class="sign" src="sign.png" alt="">
+    <a class="sign-link" href="https://www.youtube.com/watch?v=GdQwwZJfoLE" target="_blank" rel="noopener" aria-label="點擊 Paris, Texas 告示牌，在 YouTube 開啟影片"></a>
+    <div class="walker">
+      <img class="w first" src="walk/w00.webp" alt="戴紅色鴨舌帽、穿西裝的男人朝鏡頭走來" style="left:33.625%;top:30.056%;width:19.188%;height:20.412%;animation-range:0% 3%">
+      <img class="w" src="walk/w01.webp" alt="" style="left:33.125%;top:30.712%;width:19.812%;height:20.974%;animation-range:3% 6%">
+      <img class="w" src="walk/w02.webp" alt="" style="left:32.562%;top:31.367%;width:20.562%;height:21.536%;animation-range:6% 9%">
+      <img class="w" src="walk/w03.webp" alt="" style="left:32%;top:32.116%;width:21.25%;height:22.285%;animation-range:9% 12%">
+      <img class="w" src="walk/w04.webp" alt="" style="left:31.312%;top:32.959%;width:22.062%;height:22.94%;animation-range:12% 15%">
+      <img class="w" src="walk/w05.webp" alt="" style="left:30.625%;top:33.895%;width:22.938%;height:23.689%;animation-range:15% 18%">
+      <img class="w" src="walk/w06.webp" alt="" style="left:29.688%;top:35.019%;width:24.188%;height:24.345%;animation-range:18% 21%">
+      <img class="w" src="walk/w07.webp" alt="" style="left:28.938%;top:36.236%;width:25.125%;height:25.094%;animation-range:21% 24%">
+      <img class="w" src="walk/w08.webp" alt="" style="left:28%;top:37.64%;width:26.375%;height:25.936%;animation-range:24% 27%">
+      <img class="w" src="walk/w09.webp" alt="" style="left:27.062%;top:39.232%;width:27.562%;height:26.779%;animation-range:27% 30%">
+      <img class="w" src="walk/w10.webp" alt="" style="left:26.062%;top:41.199%;width:28.875%;height:27.528%;animation-range:30% 33%">
+      <img class="w" src="walk/w11.webp" alt="" style="left:24.875%;top:43.446%;width:30.75%;height:28.277%;animation-range:33% 36%">
+      <img class="w" src="walk/w12.webp" alt="" style="left:23.625%;top:46.255%;width:32.5%;height:28.933%;animation-range:36% 39%">
+      <img class="w" src="walk/w13.webp" alt="" style="left:21.812%;top:48.221%;width:34.688%;height:30.899%;animation-range:39% 42%">
+      <img class="w" src="walk/w14.webp" alt="" style="left:19.75%;top:50.375%;width:37.25%;height:33.24%;animation-range:42% 45%">
+      <img class="w" src="walk/w15.webp" alt="" style="left:17.375%;top:52.996%;width:40.188%;height:35.768%;animation-range:45% 48%">
+      <img class="w" src="walk/w16.webp" alt="" style="left:14.562%;top:55.993%;width:43.625%;height:38.858%;animation-range:48% 51%">
+      <img class="w" src="walk/w17.webp" alt="" style="left:35.562%;top:62.547%;width:29.25%;height:37.453%;animation-range:51% 54%">
+      <img class="w" src="walk/w18.webp" alt="" style="left:34.062%;top:78.464%;width:29.25%;height:21.536%;animation-range:54% 57%">
+      <img class="w" src="walk/w19.webp" alt="" style="left:31.125%;top:84.925%;width:34.125%;height:15.075%;animation-range:57% 60%">
+    </div>
+  </div>
+</div>
+<div class="reel" aria-hidden="true"></div>
+<div class="counter" aria-hidden="true"></div>
+<p class="fallback">這個瀏覽器還不支援 CSS 捲動驅動動畫（或已開啟「減少動態效果」），所以只顯示最後一格。</p>
+
+</body>
+</html>
