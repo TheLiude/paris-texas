@@ -47,9 +47,14 @@ body { -webkit-tap-highlight-color: transparent; }
 .frames, .walker { position: absolute; inset: 0; pointer-events: none; }
 .stage img { position: absolute; max-width: none; display: block; }
 .stage img.bg { inset: 0; width: 100%; height: 100%; }
-.final, .f, .w { opacity: 0; }
+.final { opacity: 0; }
+/* 背景與人物各只用一個圖層，捲動時換圖（手機記憶體才夠用） */
+.bgseq { position: absolute; inset: 0; background: url(frames/f00.jpg) center / 100% 100% no-repeat; }
+.wseq { position: absolute; background-size: 100% 100%; background-repeat: no-repeat; }
+.preload { position: absolute; width: 1px; height: 1px; overflow: hidden; opacity: 0; pointer-events: none; }
+.preload img { width: 1px; height: 1px; }
 /* 人物：每一格是依攝影機透視算好的去背影格；色調調得接近褪色底片 */
-.w { filter: sepia(.18) saturate(.82) contrast(.96) brightness(1.04); }
+.wseq { filter: sepia(.18) saturate(.82) contrast(.96) brightness(1.04); }
 .sign {
   left: 34.239%;
   top: 43.863%;
@@ -78,67 +83,75 @@ body { -webkit-tap-highlight-color: transparent; }
    Scroll-Driven Animations：全部掛在 scroll(root)，keyframe 百分比 = 捲動進度
    ========================================================= */
 @supports (animation-timeline: scroll()) {
-  /* 每張影格各自一份完整的時間表（0–100%），只在自己的 3% 內不透明。
-     不使用 animation-range，避免 iOS Safari 在捲到底時把所有影格同時顯示。 */
-  .f, .w {
+  /* 每 3% 換一張背景、一張人物（step-end：在自己的 3% 內保持不變） */
+  .bgseq, .wseq {
     animation-duration: auto;
     animation-timing-function: step-end;
     animation-fill-mode: both;
     animation-timeline: scroll(root);
   }
-  @keyframes fr01 { 0% { opacity: 0; } 3% { opacity: 1; } 6% { opacity: 0; } 100% { opacity: 0; } }
-  @keyframes fr02 { 0% { opacity: 0; } 6% { opacity: 1; } 9% { opacity: 0; } 100% { opacity: 0; } }
-  @keyframes fr03 { 0% { opacity: 0; } 9% { opacity: 1; } 12% { opacity: 0; } 100% { opacity: 0; } }
-  @keyframes fr04 { 0% { opacity: 0; } 12% { opacity: 1; } 15% { opacity: 0; } 100% { opacity: 0; } }
-  @keyframes fr05 { 0% { opacity: 0; } 15% { opacity: 1; } 18% { opacity: 0; } 100% { opacity: 0; } }
-  @keyframes fr06 { 0% { opacity: 0; } 18% { opacity: 1; } 21% { opacity: 0; } 100% { opacity: 0; } }
-  @keyframes fr07 { 0% { opacity: 0; } 21% { opacity: 1; } 24% { opacity: 0; } 100% { opacity: 0; } }
-  @keyframes fr08 { 0% { opacity: 0; } 24% { opacity: 1; } 27% { opacity: 0; } 100% { opacity: 0; } }
-  @keyframes fr09 { 0% { opacity: 0; } 27% { opacity: 1; } 30% { opacity: 0; } 100% { opacity: 0; } }
-  @keyframes fr10 { 0% { opacity: 0; } 30% { opacity: 1; } 33% { opacity: 0; } 100% { opacity: 0; } }
-  @keyframes fr11 { 0% { opacity: 0; } 33% { opacity: 1; } 36% { opacity: 0; } 100% { opacity: 0; } }
-  @keyframes fr12 { 0% { opacity: 0; } 36% { opacity: 1; } 39% { opacity: 0; } 100% { opacity: 0; } }
-  @keyframes fr13 { 0% { opacity: 0; } 39% { opacity: 1; } 42% { opacity: 0; } 100% { opacity: 0; } }
-  @keyframes fr14 { 0% { opacity: 0; } 42% { opacity: 1; } 45% { opacity: 0; } 100% { opacity: 0; } }
-  @keyframes fr15 { 0% { opacity: 0; } 45% { opacity: 1; } 48% { opacity: 0; } 100% { opacity: 0; } }
-  @keyframes fr16 { 0% { opacity: 0; } 48% { opacity: 1; } 51% { opacity: 0; } 100% { opacity: 0; } }
-  @keyframes fr17 { 0% { opacity: 0; } 51% { opacity: 1; } 54% { opacity: 0; } 100% { opacity: 0; } }
-  @keyframes fr18 { 0% { opacity: 0; } 54% { opacity: 1; } 57% { opacity: 0; } 100% { opacity: 0; } }
-  @keyframes fr19 { 0% { opacity: 0; } 57% { opacity: 1; } 60% { opacity: 0; } 100% { opacity: 0; } }
-  @keyframes fr20 { 0% { opacity: 0; } 60% { opacity: 1; } 63% { opacity: 0; } 100% { opacity: 0; } }
-  @keyframes fr21 { 0% { opacity: 0; } 63% { opacity: 1; } 66% { opacity: 0; } 100% { opacity: 0; } }
-  @keyframes fr22 { 0% { opacity: 0; } 66% { opacity: 1; } 69% { opacity: 0; } 100% { opacity: 0; } }
-  @keyframes fr23 { 0% { opacity: 0; } 69% { opacity: 1; } 72% { opacity: 0; } 100% { opacity: 0; } }
-  @keyframes fr24 { 0% { opacity: 0; } 72% { opacity: 1; } 75% { opacity: 0; } 100% { opacity: 0; } }
-  @keyframes fr25 { 0% { opacity: 0; } 75% { opacity: 1; } 78% { opacity: 0; } 100% { opacity: 0; } }
-  @keyframes fr26 { 0% { opacity: 0; } 78% { opacity: 1; } 81% { opacity: 0; } 100% { opacity: 0; } }
-  @keyframes fr27 { 0% { opacity: 0; } 81% { opacity: 1; } 84% { opacity: 0; } 100% { opacity: 0; } }
-  @keyframes fr28 { 0% { opacity: 0; } 84% { opacity: 1; } 87% { opacity: 0; } 100% { opacity: 0; } }
-  @keyframes fr29 { 0% { opacity: 0; } 87% { opacity: 1; } 90% { opacity: 0; } 100% { opacity: 0; } }
-  @keyframes fr30 { 0% { opacity: 0; } 90% { opacity: 1; } 93% { opacity: 0; } 100% { opacity: 0; } }
-  @keyframes fr31 { 0% { opacity: 0; } 93% { opacity: 1; } 96% { opacity: 0; } 100% { opacity: 0; } }
-  @keyframes fr32 { 0% { opacity: 0; } 96% { opacity: 1; } 99% { opacity: 0; } 100% { opacity: 0; } }
-  @keyframes fr33 { 0% { opacity: 0; } 99% { opacity: 1; } 100% { opacity: 1; } }
-  @keyframes wk00 { 0% { opacity: 1; } 3% { opacity: 0; } 100% { opacity: 0; } }
-  @keyframes wk01 { 0% { opacity: 0; } 3% { opacity: 1; } 6% { opacity: 0; } 100% { opacity: 0; } }
-  @keyframes wk02 { 0% { opacity: 0; } 6% { opacity: 1; } 9% { opacity: 0; } 100% { opacity: 0; } }
-  @keyframes wk03 { 0% { opacity: 0; } 9% { opacity: 1; } 12% { opacity: 0; } 100% { opacity: 0; } }
-  @keyframes wk04 { 0% { opacity: 0; } 12% { opacity: 1; } 15% { opacity: 0; } 100% { opacity: 0; } }
-  @keyframes wk05 { 0% { opacity: 0; } 15% { opacity: 1; } 18% { opacity: 0; } 100% { opacity: 0; } }
-  @keyframes wk06 { 0% { opacity: 0; } 18% { opacity: 1; } 21% { opacity: 0; } 100% { opacity: 0; } }
-  @keyframes wk07 { 0% { opacity: 0; } 21% { opacity: 1; } 24% { opacity: 0; } 100% { opacity: 0; } }
-  @keyframes wk08 { 0% { opacity: 0; } 24% { opacity: 1; } 27% { opacity: 0; } 100% { opacity: 0; } }
-  @keyframes wk09 { 0% { opacity: 0; } 27% { opacity: 1; } 30% { opacity: 0; } 100% { opacity: 0; } }
-  @keyframes wk10 { 0% { opacity: 0; } 30% { opacity: 1; } 33% { opacity: 0; } 100% { opacity: 0; } }
-  @keyframes wk11 { 0% { opacity: 0; } 33% { opacity: 1; } 36% { opacity: 0; } 100% { opacity: 0; } }
-  @keyframes wk12 { 0% { opacity: 0; } 36% { opacity: 1; } 39% { opacity: 0; } 100% { opacity: 0; } }
-  @keyframes wk13 { 0% { opacity: 0; } 39% { opacity: 1; } 42% { opacity: 0; } 100% { opacity: 0; } }
-  @keyframes wk14 { 0% { opacity: 0; } 42% { opacity: 1; } 45% { opacity: 0; } 100% { opacity: 0; } }
-  @keyframes wk15 { 0% { opacity: 0; } 45% { opacity: 1; } 48% { opacity: 0; } 100% { opacity: 0; } }
-  @keyframes wk16 { 0% { opacity: 0; } 48% { opacity: 1; } 51% { opacity: 0; } 100% { opacity: 0; } }
-  @keyframes wk17 { 0% { opacity: 0; } 51% { opacity: 1; } 54% { opacity: 0; } 100% { opacity: 0; } }
-  @keyframes wk18 { 0% { opacity: 0; } 54% { opacity: 1; } 57% { opacity: 0; } 100% { opacity: 0; } }
-  @keyframes wk19 { 0% { opacity: 0; } 57% { opacity: 1; } 60% { opacity: 0; } 100% { opacity: 0; } }
+  .bgseq { animation-name: bgseq; }
+  .wseq { animation-name: wseq; }
+  @keyframes bgseq {
+    0% { background-image: url(frames/f00.jpg); }
+    3% { background-image: url(frames/f01.jpg); }
+    6% { background-image: url(frames/f02.jpg); }
+    9% { background-image: url(frames/f03.jpg); }
+    12% { background-image: url(frames/f04.jpg); }
+    15% { background-image: url(frames/f05.jpg); }
+    18% { background-image: url(frames/f06.jpg); }
+    21% { background-image: url(frames/f07.jpg); }
+    24% { background-image: url(frames/f08.jpg); }
+    27% { background-image: url(frames/f09.jpg); }
+    30% { background-image: url(frames/f10.jpg); }
+    33% { background-image: url(frames/f11.jpg); }
+    36% { background-image: url(frames/f12.jpg); }
+    39% { background-image: url(frames/f13.jpg); }
+    42% { background-image: url(frames/f14.jpg); }
+    45% { background-image: url(frames/f15.jpg); }
+    48% { background-image: url(frames/f16.jpg); }
+    51% { background-image: url(frames/f17.jpg); }
+    54% { background-image: url(frames/f18.jpg); }
+    57% { background-image: url(frames/f19.jpg); }
+    60% { background-image: url(frames/f20.jpg); }
+    63% { background-image: url(frames/f21.jpg); }
+    66% { background-image: url(frames/f22.jpg); }
+    69% { background-image: url(frames/f23.jpg); }
+    72% { background-image: url(frames/f24.jpg); }
+    75% { background-image: url(frames/f25.jpg); }
+    78% { background-image: url(frames/f26.jpg); }
+    81% { background-image: url(frames/f27.jpg); }
+    84% { background-image: url(frames/f28.jpg); }
+    87% { background-image: url(frames/f29.jpg); }
+    90% { background-image: url(frames/f30.jpg); }
+    93% { background-image: url(frames/f31.jpg); }
+    96% { background-image: url(frames/f32.jpg); }
+    99% { background-image: url(frames/f33.jpg); }
+    100% { background-image: url(frames/f33.jpg); }
+  }
+  @keyframes wseq {
+    0% { left: 33.625%; top: 30.056%; width: 19.188%; height: 20.412%; background-image: url(walk/w00.webp); visibility: visible; }
+    3% { left: 33.125%; top: 30.712%; width: 19.812%; height: 20.974%; background-image: url(walk/w01.webp); visibility: visible; }
+    6% { left: 32.562%; top: 31.367%; width: 20.562%; height: 21.536%; background-image: url(walk/w02.webp); visibility: visible; }
+    9% { left: 32%; top: 32.116%; width: 21.25%; height: 22.285%; background-image: url(walk/w03.webp); visibility: visible; }
+    12% { left: 31.312%; top: 32.959%; width: 22.062%; height: 22.94%; background-image: url(walk/w04.webp); visibility: visible; }
+    15% { left: 30.625%; top: 33.895%; width: 22.938%; height: 23.689%; background-image: url(walk/w05.webp); visibility: visible; }
+    18% { left: 29.688%; top: 35.019%; width: 24.188%; height: 24.345%; background-image: url(walk/w06.webp); visibility: visible; }
+    21% { left: 28.938%; top: 36.236%; width: 25.125%; height: 25.094%; background-image: url(walk/w07.webp); visibility: visible; }
+    24% { left: 28%; top: 37.64%; width: 26.375%; height: 25.936%; background-image: url(walk/w08.webp); visibility: visible; }
+    27% { left: 27.062%; top: 39.232%; width: 27.562%; height: 26.779%; background-image: url(walk/w09.webp); visibility: visible; }
+    30% { left: 26.062%; top: 41.199%; width: 28.875%; height: 27.528%; background-image: url(walk/w10.webp); visibility: visible; }
+    33% { left: 24.875%; top: 43.446%; width: 30.75%; height: 28.277%; background-image: url(walk/w11.webp); visibility: visible; }
+    36% { left: 23.625%; top: 46.255%; width: 32.5%; height: 28.933%; background-image: url(walk/w12.webp); visibility: visible; }
+    39% { left: 21.812%; top: 48.221%; width: 34.688%; height: 30.899%; background-image: url(walk/w13.webp); visibility: visible; }
+    42% { left: 19.75%; top: 50.375%; width: 37.25%; height: 33.24%; background-image: url(walk/w14.webp); visibility: visible; }
+    45% { left: 17.375%; top: 52.996%; width: 40.188%; height: 35.768%; background-image: url(walk/w15.webp); visibility: visible; }
+    48% { left: 14.562%; top: 55.993%; width: 43.625%; height: 38.858%; background-image: url(walk/w16.webp); visibility: visible; }
+    51% { left: 35.562%; top: 62.547%; width: 29.25%; height: 37.453%; background-image: url(walk/w17.webp); visibility: visible; }
+    54% { left: 34.062%; top: 78.464%; width: 29.25%; height: 21.536%; background-image: url(walk/w18.webp); visibility: visible; }
+    57% { left: 31.125%; top: 84.925%; width: 34.125%; height: 15.075%; background-image: url(walk/w19.webp); visibility: visible; }
+    60%, 100% { visibility: hidden; background-image: none; }
+  }
 
   .walker, .frames, .sign, .final, .reel {
     animation-timing-function: linear;
@@ -224,14 +237,14 @@ body { -webkit-tap-highlight-color: transparent; }
 @supports not (animation-timeline: scroll()) {
   body { height: 100%; }
   .walker, .sign, .reel { display: none; }
-  .final, .f.last { opacity: 1; }
+  .final { opacity: 1; }
   .sign-link { visibility: visible; }
   .fallback { display: block; }
 }
 @media (prefers-reduced-motion: reduce) {
   body { height: 100%; }
   .walker, .sign, .reel { display: none; }
-  .final, .f.last { opacity: 1; animation: none !important; }
+  .final { opacity: 1; animation: none !important; }
   .sign-link { visibility: visible; animation: none !important; }
   .fallback { display: block; }
 }
@@ -254,69 +267,72 @@ body { -webkit-tap-highlight-color: transparent; }
 <div class="scene" aria-label="巴黎德州開場：沙漠中走來的人">
   <div class="stage">
     <div class="frames">
-      <img class="bg" src="frames/f00.jpg" alt="褪色照片中的沙漠與遠方地平線，攝影機正緩緩後退">
-      <img class="bg f" src="frames/f01.jpg" alt="" style="animation-name: fr01">
-      <img class="bg f" src="frames/f02.jpg" alt="" style="animation-name: fr02">
-      <img class="bg f" src="frames/f03.jpg" alt="" style="animation-name: fr03">
-      <img class="bg f" src="frames/f04.jpg" alt="" style="animation-name: fr04">
-      <img class="bg f" src="frames/f05.jpg" alt="" style="animation-name: fr05">
-      <img class="bg f" src="frames/f06.jpg" alt="" style="animation-name: fr06">
-      <img class="bg f" src="frames/f07.jpg" alt="" style="animation-name: fr07">
-      <img class="bg f" src="frames/f08.jpg" alt="" style="animation-name: fr08">
-      <img class="bg f" src="frames/f09.jpg" alt="" style="animation-name: fr09">
-      <img class="bg f" src="frames/f10.jpg" alt="" style="animation-name: fr10">
-      <img class="bg f" src="frames/f11.jpg" alt="" style="animation-name: fr11">
-      <img class="bg f" src="frames/f12.jpg" alt="" style="animation-name: fr12">
-      <img class="bg f" src="frames/f13.jpg" alt="" style="animation-name: fr13">
-      <img class="bg f" src="frames/f14.jpg" alt="" style="animation-name: fr14">
-      <img class="bg f" src="frames/f15.jpg" alt="" style="animation-name: fr15">
-      <img class="bg f" src="frames/f16.jpg" alt="" style="animation-name: fr16">
-      <img class="bg f" src="frames/f17.jpg" alt="" style="animation-name: fr17">
-      <img class="bg f" src="frames/f18.jpg" alt="" style="animation-name: fr18">
-      <img class="bg f" src="frames/f19.jpg" alt="" style="animation-name: fr19">
-      <img class="bg f" src="frames/f20.jpg" alt="" style="animation-name: fr20">
-      <img class="bg f" src="frames/f21.jpg" alt="" style="animation-name: fr21">
-      <img class="bg f" src="frames/f22.jpg" alt="" style="animation-name: fr22">
-      <img class="bg f" src="frames/f23.jpg" alt="" style="animation-name: fr23">
-      <img class="bg f" src="frames/f24.jpg" alt="" style="animation-name: fr24">
-      <img class="bg f" src="frames/f25.jpg" alt="" style="animation-name: fr25">
-      <img class="bg f" src="frames/f26.jpg" alt="" style="animation-name: fr26">
-      <img class="bg f" src="frames/f27.jpg" alt="" style="animation-name: fr27">
-      <img class="bg f" src="frames/f28.jpg" alt="" style="animation-name: fr28">
-      <img class="bg f" src="frames/f29.jpg" alt="" style="animation-name: fr29">
-      <img class="bg f" src="frames/f30.jpg" alt="" style="animation-name: fr30">
-      <img class="bg f" src="frames/f31.jpg" alt="" style="animation-name: fr31">
-      <img class="bg f" src="frames/f32.jpg" alt="" style="animation-name: fr32">
-      <img class="bg f last" src="frames/f33.jpg" alt="" style="animation-name: fr33">
+      <div class="bgseq" role="img" aria-label="褪色照片中的沙漠與遠方地平線，攝影機正緩緩後退"></div>
     </div>
     <img class="bg final" src="frames/f33-sign.jpg" alt="沙漠中立著寫有 Paris, Texas 的房地產立牌">
     <img class="sign" src="sign.png" alt="">
     <a class="sign-link" href="https://www.youtube.com/watch?v=GdQwwZJfoLE" target="_blank" rel="noopener" aria-label="點擊 Paris, Texas 告示牌，在 YouTube 開啟影片"></a>
     <div class="walker">
-      <img class="w first" src="walk/w00.webp" alt="戴紅色鴨舌帽、穿西裝的男人朝鏡頭走來" style="left:33.625%;top:30.056%;width:19.188%;height:20.412%;animation-name:wk00">
-      <img class="w" src="walk/w01.webp" alt="" style="left:33.125%;top:30.712%;width:19.812%;height:20.974%;animation-name:wk01">
-      <img class="w" src="walk/w02.webp" alt="" style="left:32.562%;top:31.367%;width:20.562%;height:21.536%;animation-name:wk02">
-      <img class="w" src="walk/w03.webp" alt="" style="left:32%;top:32.116%;width:21.25%;height:22.285%;animation-name:wk03">
-      <img class="w" src="walk/w04.webp" alt="" style="left:31.312%;top:32.959%;width:22.062%;height:22.94%;animation-name:wk04">
-      <img class="w" src="walk/w05.webp" alt="" style="left:30.625%;top:33.895%;width:22.938%;height:23.689%;animation-name:wk05">
-      <img class="w" src="walk/w06.webp" alt="" style="left:29.688%;top:35.019%;width:24.188%;height:24.345%;animation-name:wk06">
-      <img class="w" src="walk/w07.webp" alt="" style="left:28.938%;top:36.236%;width:25.125%;height:25.094%;animation-name:wk07">
-      <img class="w" src="walk/w08.webp" alt="" style="left:28%;top:37.64%;width:26.375%;height:25.936%;animation-name:wk08">
-      <img class="w" src="walk/w09.webp" alt="" style="left:27.062%;top:39.232%;width:27.562%;height:26.779%;animation-name:wk09">
-      <img class="w" src="walk/w10.webp" alt="" style="left:26.062%;top:41.199%;width:28.875%;height:27.528%;animation-name:wk10">
-      <img class="w" src="walk/w11.webp" alt="" style="left:24.875%;top:43.446%;width:30.75%;height:28.277%;animation-name:wk11">
-      <img class="w" src="walk/w12.webp" alt="" style="left:23.625%;top:46.255%;width:32.5%;height:28.933%;animation-name:wk12">
-      <img class="w" src="walk/w13.webp" alt="" style="left:21.812%;top:48.221%;width:34.688%;height:30.899%;animation-name:wk13">
-      <img class="w" src="walk/w14.webp" alt="" style="left:19.75%;top:50.375%;width:37.25%;height:33.24%;animation-name:wk14">
-      <img class="w" src="walk/w15.webp" alt="" style="left:17.375%;top:52.996%;width:40.188%;height:35.768%;animation-name:wk15">
-      <img class="w" src="walk/w16.webp" alt="" style="left:14.562%;top:55.993%;width:43.625%;height:38.858%;animation-name:wk16">
-      <img class="w" src="walk/w17.webp" alt="" style="left:35.562%;top:62.547%;width:29.25%;height:37.453%;animation-name:wk17">
-      <img class="w" src="walk/w18.webp" alt="" style="left:34.062%;top:78.464%;width:29.25%;height:21.536%;animation-name:wk18">
-      <img class="w" src="walk/w19.webp" alt="" style="left:31.125%;top:84.925%;width:34.125%;height:15.075%;animation-name:wk19">
+      <div class="wseq" role="img" aria-label="戴紅色鴨舌帽、穿西裝的男人朝鏡頭走來"></div>
     </div>
   </div>
 </div>
 <div class="reel" aria-hidden="true"></div>
+<div class="preload" aria-hidden="true">
+  <img src="frames/f01.jpg" alt="">
+  <img src="frames/f02.jpg" alt="">
+  <img src="frames/f03.jpg" alt="">
+  <img src="frames/f04.jpg" alt="">
+  <img src="frames/f05.jpg" alt="">
+  <img src="frames/f06.jpg" alt="">
+  <img src="frames/f07.jpg" alt="">
+  <img src="frames/f08.jpg" alt="">
+  <img src="frames/f09.jpg" alt="">
+  <img src="frames/f10.jpg" alt="">
+  <img src="frames/f11.jpg" alt="">
+  <img src="frames/f12.jpg" alt="">
+  <img src="frames/f13.jpg" alt="">
+  <img src="frames/f14.jpg" alt="">
+  <img src="frames/f15.jpg" alt="">
+  <img src="frames/f16.jpg" alt="">
+  <img src="frames/f17.jpg" alt="">
+  <img src="frames/f18.jpg" alt="">
+  <img src="frames/f19.jpg" alt="">
+  <img src="frames/f20.jpg" alt="">
+  <img src="frames/f21.jpg" alt="">
+  <img src="frames/f22.jpg" alt="">
+  <img src="frames/f23.jpg" alt="">
+  <img src="frames/f24.jpg" alt="">
+  <img src="frames/f25.jpg" alt="">
+  <img src="frames/f26.jpg" alt="">
+  <img src="frames/f27.jpg" alt="">
+  <img src="frames/f28.jpg" alt="">
+  <img src="frames/f29.jpg" alt="">
+  <img src="frames/f30.jpg" alt="">
+  <img src="frames/f31.jpg" alt="">
+  <img src="frames/f32.jpg" alt="">
+  <img src="frames/f33.jpg" alt="">
+  <img src="walk/w00.webp" alt="">
+  <img src="walk/w01.webp" alt="">
+  <img src="walk/w02.webp" alt="">
+  <img src="walk/w03.webp" alt="">
+  <img src="walk/w04.webp" alt="">
+  <img src="walk/w05.webp" alt="">
+  <img src="walk/w06.webp" alt="">
+  <img src="walk/w07.webp" alt="">
+  <img src="walk/w08.webp" alt="">
+  <img src="walk/w09.webp" alt="">
+  <img src="walk/w10.webp" alt="">
+  <img src="walk/w11.webp" alt="">
+  <img src="walk/w12.webp" alt="">
+  <img src="walk/w13.webp" alt="">
+  <img src="walk/w14.webp" alt="">
+  <img src="walk/w15.webp" alt="">
+  <img src="walk/w16.webp" alt="">
+  <img src="walk/w17.webp" alt="">
+  <img src="walk/w18.webp" alt="">
+  <img src="walk/w19.webp" alt="">
+</div>
 <p class="fallback">這個瀏覽器還不支援 CSS 捲動驅動動畫（或已開啟「減少動態效果」），所以只顯示最後一格。</p>
 
 </body>
