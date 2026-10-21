@@ -260,6 +260,29 @@ body { -webkit-tap-highlight-color: transparent; }
   line-height: 1.6;
   font-size: .95rem;
 }
+
+/* 影片彈出視窗：瀏覽器原生 popover，點外面或按「關閉」即可收起 */
+button.sign-link { background: transparent; border: 0; padding: 0; font: inherit; color: inherit; }
+.video-pop {
+  width: min(92vw, 960px);
+  max-height: 92svh;
+  padding: 0;
+  border: 0;
+  border-radius: 6px;
+  background: var(--ink);
+  color: var(--paper);
+  overflow: hidden;
+  box-shadow: 0 20px 60px rgb(0 0 0 / .6);
+}
+.video-pop::backdrop { background: rgb(13 11 9 / .82); }
+.video-frame { position: relative; aspect-ratio: 16 / 9; background: #000; max-height: calc(92svh - 56px); margin-inline: auto; }
+.video-frame iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; }
+.video-bar { display: flex; justify-content: space-between; align-items: center; gap: 12px;
+             padding: 10px 14px; font-size: .95rem; letter-spacing: .04em; }
+.video-bar a { color: var(--paper); }
+.video-bar button { background: transparent; color: var(--paper); border: 1px solid rgb(243 236 224 / .5);
+                    border-radius: 999px; padding: .4em 1.1em; font: inherit; cursor: pointer; }
+.video-bar button:focus-visible, .video-bar a:focus-visible { outline: 2px solid var(--paper); outline-offset: 3px; }
 </style>
 </head>
 <body>
@@ -271,7 +294,7 @@ body { -webkit-tap-highlight-color: transparent; }
     </div>
     <img class="bg final" src="frames/f33-sign.jpg" alt="沙漠中立著寫有 Paris, Texas 的房地產立牌">
     <img class="sign" src="sign.png" alt="">
-    <a class="sign-link" href="https://www.youtube.com/watch?v=GdQwwZJfoLE" target="_blank" rel="noopener" aria-label="點擊 Paris, Texas 告示牌，在 YouTube 開啟影片"></a>
+    <button class="sign-link" type="button" popovertarget="video" aria-label="點擊 Paris, Texas 告示牌，播放影片"></button>
     <div class="walker">
       <div class="wseq" role="img" aria-label="戴紅色鴨舌帽、穿西裝的男人朝鏡頭走來"></div>
     </div>
@@ -335,5 +358,16 @@ body { -webkit-tap-highlight-color: transparent; }
 </div>
 <p class="fallback">這個瀏覽器還不支援 CSS 捲動驅動動畫（或已開啟「減少動態效果」），所以只顯示最後一格。</p>
 
+<div id="video" class="video-pop" popover>
+  <div class="video-frame">
+    <iframe src="https://www.youtube.com/embed/GdQwwZJfoLE?rel=0&amp;playsinline=1" title="Paris, Texas 影片"
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+            referrerpolicy="strict-origin-when-cross-origin" allowfullscreen loading="lazy"></iframe>
+  </div>
+  <div class="video-bar">
+    <a href="https://www.youtube.com/watch?v=GdQwwZJfoLE" target="_blank" rel="noopener">在 YouTube 開啟</a>
+    <button type="button" popovertarget="video" popovertargetaction="hide">關閉</button>
+  </div>
+</div>
 </body>
 </html>
